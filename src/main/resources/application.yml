@@ -1,2 +1,12 @@
 server:
   port: 8080
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: admin
+    password: admin
+    names:
+      queue: test-Q
+      exchange: test-EX
