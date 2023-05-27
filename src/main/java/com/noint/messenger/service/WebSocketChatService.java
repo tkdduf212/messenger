@@ -1,10 +1,14 @@
 package com.noint.messenger.service;
 
+import com.noint.messenger.mq.RabbitQueue;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,6 +19,10 @@ import java.util.Set;
 @Service
 @ServerEndpoint(value = "/socket/chat")
 public class WebSocketChatService {
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitQueue rabbitQueue;
     private static Set<Session> clients = Collections.synchronizedSet(new HashSet<Session>());
 
     @OnMessage
@@ -29,6 +37,7 @@ public class WebSocketChatService {
     @OnOpen
     public void onOpen(Session s) {
         System.out.println("open session : " + s.toString());
+        rabbitQueue.addNewQueue(s.toString(), "test-add-Q", s.toString());
         if(!clients.contains(s)) {
             clients.add(s);
             System.out.println("session open : " + s);
