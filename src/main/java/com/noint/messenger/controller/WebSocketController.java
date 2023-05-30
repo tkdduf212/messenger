@@ -1,5 +1,6 @@
 package com.noint.messenger.controller;
 
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
@@ -36,7 +37,7 @@ public class WebSocketController {
         try {
             Channel channel = connection.createChannel();
             channel.queueDeclare("javaQ", false, false, false, null);
-            channel.basicPublish("", "javaQ", null, "Hello World!".getBytes());
+            channel.basicPublish("javaEx", "javaQ", null, "Hello World!".getBytes());
             System.out.println("send OK");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -47,7 +48,9 @@ public class WebSocketController {
     public void recvTest() {
         try {
             Channel channel = connection.createChannel();
+            channel.exchangeDeclare("javaEx", BuiltinExchangeType.DIRECT);
             channel.queueDeclare("javaQ", false, false, false, null);
+            channel.queueBind("javaQ", "javaEx", "javaQ1");
             System.out.println("rece watiing");
             DeliverCallback deliverCallback = (consumerTag, delivery) ->{
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
