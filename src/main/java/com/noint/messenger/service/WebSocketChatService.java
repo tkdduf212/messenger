@@ -18,11 +18,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-@ServerEndpoint(value = "/socket/chat")
-@RequiredArgsConstructor
+@ServerEndpoint(value = "/socket/chat/{name}")
 public class WebSocketChatService {
     private final Rabbit rabbit;
     private static Set<Session> clients = Collections.synchronizedSet(new HashSet<Session>());
+
+    public WebSocketChatService() {
+        this.rabbit = (Rabbit) SpringContext.getApplicationContext().getBean("rabbit");
+    }
 
     public void Login(String name) {
         rabbit.ReceiveQueueRegister(name);
