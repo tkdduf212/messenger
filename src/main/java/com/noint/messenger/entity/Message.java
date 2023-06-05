@@ -8,6 +8,6 @@ public class Message {
     @Data
     public static class MessageRequestForm {
         private String msg;
-        private List<String> users;
+        private List<String> targets;
     }
 }

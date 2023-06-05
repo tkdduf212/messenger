@@ -65,6 +65,7 @@
         <input type='button' value='전송' id='btnSend'>
     </div>
 </div>
+<input type='text' id='test-target-ids' placeholder="유저 타겟테스트용">
 <script>
     function getId(id){
         return document.getElementById(id);
@@ -78,6 +79,7 @@
     const btnSend = getId('btnSend');
     const talk = getId('talk');
     const msg = getId('msg');
+    const targetIds = getId('test-target-ids');
 
 
     btnLogin.onclick = function(){
@@ -98,20 +100,21 @@
 
     function websocketConnection() {
         console.log(mid.value);
-        ws = new WebSocket("ws://" + location.host + "/socket/chat");
+        ws = new WebSocket("ws://" + location.host + "/socket/chat/" + mid.value);
 
         ws.onmessage = function(msg){
+            console.log(msg)
             const data = JSON.parse(msg.data);
             let css;
 
-            if(data.mid == mid.value){
+            if(data.sender == mid.value){
                 css = 'class=me';
             }else{
                 css = 'class=other';
             }
 
             const item = `<div ${css} >
-		                <span><b>${data.mid}</b></span> [ ${data.date} ]<br/>
+		                <span><b>${data.sender}</b></span> [ ${data.date} ]<br/>
                       <span>${data.msg}</span>
 						</div>`;
 
@@ -132,15 +135,35 @@
 
     function send(){
         if(msg.value.trim() != ''){
-            data.mid = getId('mid').value;
-            data.msg = msg.value;
-            data.date = new Date().toLocaleString();
+            // data.mid = getId('mid').value;
+            // data.msg = msg.value;
+            // data.date = new Date().toLocaleString();
+            data.msg = JSON.stringify({sender : getId('mid').value, msg : msg.value, date : new Date().toLocaleString()});
+            data.targets = targetSetting();
             const temp = JSON.stringify(data);
             console.log(temp)
             ws.send(temp);
         }
         msg.value ='';
+    }
 
+    function targetSetting() {
+        const targetsIds = targetIds.value;
+        if (targetsIds.length < 1 || targetsIds === '') {
+            console.error(targetsIds);
+            alert('타겟 설정 확인.')
+        }
+
+        if (targetsIds.indexOf(',') === -1) {
+            return [targetIds.value];
+        }else {
+            const split = targetsIds.split(',');
+            let targetArr = [];
+            for (const s of split) {
+                targetArr.push(s);
+            }
+            return targetArr;
+        }
     }
 </script>
 </body>
