@@ -27,10 +27,6 @@ public class WebSocketChatService {
         this.rabbit = (Rabbit) SpringContext.getApplicationContext().getBean("rabbit");
     }
 
-    public void Login(String name) {
-        rabbit.ReceiveQueueRegister(name);
-    }
-
     @OnMessage
     public void onMessage(String msg, Session session, @PathParam("name") String name) throws IOException {
 //        System.out.println("receive message : " + msg);

@@ -1,7 +1,5 @@
 package com.noint.messenger.mq;
 
-import com.google.gson.Gson;
-import com.noint.messenger.entity.Message;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -11,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +21,14 @@ public class Rabbit {
     private final Connection connection;
     private final Map<String, Channel> channelStorage = new HashMap<>();
 
+    private final String exchange = "javaEx";
+
     public void ReceiveQueueRegister(String queueName) {
         try {
             Channel channel = this.createChannel(queueName);
-            channel.exchangeDeclare("javaEx", BuiltinExchangeType.DIRECT);
+            channel.exchangeDeclare(exchange, BuiltinExchangeType.DIRECT);
             channel.queueDeclare(queueName, false, false, false, null);
-            channel.queueBind(queueName, "javaEx", queueName);
+            channel.queueBind(queueName, exchange, queueName);
             System.out.println(queueName + " recv watiing");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -55,7 +54,7 @@ public class Rabbit {
     public void publish(String targetQueueName, String msg, String sender) {
         try {
             Channel channel = channelStorage.get(sender);
-            channel.basicPublish("javaEx", targetQueueName, null, msg.getBytes());
+            channel.basicPublish(exchange, targetQueueName, null, msg.getBytes());
             System.out.println("send OK");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -66,7 +65,7 @@ public class Rabbit {
         Channel channel = channelStorage.get(sender);
         try {
             for (String target : targetQueueNames) {
-                channel.basicPublish("javaEx", target, null, msg.getBytes());
+                channel.basicPublish(exchange, target, null, msg.getBytes());
                 System.out.println("send OK");
             }
         } catch (IOException e) {

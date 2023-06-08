@@ -66,12 +66,16 @@
     </div>
 </div>
 <input type='text' id='test-target-ids' placeholder="유저 타겟테스트용">
-<script>
+<script th:inline="javascript">
     function getId(id){
         return document.getElementById(id);
     }
 
-    const data = {};//전송 데이터(JSON)
+    const data = /*[[${data}]]*/;
+    console.log(data);
+
+
+    const msgData = {};//전송 데이터(JSON)
 
     let ws ;
     const mid = getId('mid');
@@ -138,9 +142,9 @@
             // data.mid = getId('mid').value;
             // data.msg = msg.value;
             // data.date = new Date().toLocaleString();
-            data.msg = JSON.stringify({sender : getId('mid').value, msg : msg.value, date : new Date().toLocaleString()});
-            data.targets = targetSetting();
-            const temp = JSON.stringify(data);
+            msgData.msg = JSON.stringify({sender : getId('mid').value, msg : msg.value, date : new Date().toLocaleString()});
+            msgData.targets = targetSetting();
+            const temp = JSON.stringify(msgData);
             console.log(temp)
             ws.send(temp);
         }
