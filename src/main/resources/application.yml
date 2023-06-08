@@ -2,11 +2,27 @@ server:
   port: 8080
 
 spring:
+  h2:
+    console:
+      enabled: true
   rabbitmq:
     host: localhost
     port: 5673
     username: admin
     password: admin
-    names:
-      queue: test-Q
-      exchange: test-EX
+  datasource:
+    url: jdbc:h2:~/test;MODE=LEGACY #h2는 url 위치가 여기여야함....
+    hikari:
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddl-auto: create
