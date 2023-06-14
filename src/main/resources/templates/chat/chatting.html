@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>채팅</title>
@@ -8,33 +8,42 @@
             box-sizing: border-box;
         }
 
-        #chatt{
-            width: 800px;
-            margin: 20px auto;
+        #room-box{
+            width: 55%;
+            float: left;
+            border: 1px solid red;
         }
 
-        #chatt #talk{
-            width: 800px;
+        #chat-box{
+            /*width: 800px;*/
+            /*margin: `20px auto;*/
+            border: 1px solid #2a9c90;
+            width: 40%;
+            float: right;
+        }
+
+        #chat-box #talk{
+            width: 100%;
             height: 400px;
             overflow: scroll;
             border : 1px solid #aaa;
         }
-        #chatt #msg{
-            width: 740px;
+        #chat-box #msg{
+            width: 80%;
             height:100px;
             display: inline-block;
         }
 
-        #chatt #sendZone > *{
+        #chat-box #sendZone > *{
             vertical-align: top;
 
         }
-        #chatt #btnSend{
-            width: 54px;
+        #chat-box #btnSend{
+            width: 18%;
             height: 100px;
         }
 
-        #chatt #talk div{
+        #chat-box #talk div{
             width: 70%;
             display: inline-block;
             padding: 6px;
@@ -42,76 +51,69 @@
 
         }
 
-        #chatt .me{
+        #chat-box .me{
             background-color : #ffc;
             margin : 1px 0px 2px 30%;
         }
 
-        #chatt .other{
+        #chat-box .other{
             background-color : #eee;
             margin : 2px;
         }
     </style>
 </head>
 <body>
-<div id='chatt'>
-    <h1>WebSocket Chatting</h1>
-    <input type='text' id='mid' value='홍길동'>
-    <input type='button' value='로그인' id='btnLogin'>
-    <br/>
+<div id="room-box">
+    <table id="room-list-table">
+        <thead id="room-list-header">
+            <th>ROOM_ID</th>
+            <th>참여자(본인x)</th>
+        </thead>
+        <tbody id="room-list-body">
+            <tr th:each="">
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div id='chat-box'>
+    <h1>채팅</h1>
     <div id='talk'></div>
     <div id='sendZone'>
         <textarea id='msg' value='hi...'></textarea>
         <input type='button' value='전송' id='btnSend'>
     </div>
 </div>
-<input type='text' id='test-target-ids' placeholder="유저 타겟테스트용">
+<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 <script th:inline="javascript">
     function getId(id){
         return document.getElementById(id);
     }
-
     const data = /*[[${data}]]*/;
     console.log(data);
-
 
     const msgData = {};//전송 데이터(JSON)
 
     let ws ;
-    const mid = getId('mid');
-    const btnLogin = getId('btnLogin');
+    const sender = data;
     const btnSend = getId('btnSend');
     const talk = getId('talk');
     const msg = getId('msg');
     const targetIds = getId('test-target-ids');
 
-
-    btnLogin.onclick = function(){
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/chat/login", true);
-        xhr.response = 'json';
-        xhr.setRequestHeader('Content-Type', 'application/json')
-        xhr.send(JSON.stringify({name : mid.value}))
-        xhr.onload = () =>{
-            console.log(xhr.response)
-            if (xhr.status == 200) {
-                websocketConnection();
-            } else {
-                console.error("로그인 실패")
-            }
-        }
-    }
+    $(function () {
+        websocketConnection();
+    });
 
     function websocketConnection() {
-        console.log(mid.value);
-        ws = new WebSocket("ws://" + location.host + "/socket/chat/" + mid.value);
+        ws = new WebSocket("ws://" + location.host + "/socket/chat/" + sender.name);
 
         ws.onmessage = function(msg){
             console.log(msg)
             const data = JSON.parse(msg.data);
             let css;
 
-            if(data.sender == mid.value){
+            if(data.sender == sender.name){
                 css = 'class=me';
             }else{
                 css = 'class=other';
@@ -139,10 +141,10 @@
 
     function send(){
         if(msg.value.trim() != ''){
-            // data.mid = getId('mid').value;
+            // data.sender = getId('sender').value;
             // data.msg = msg.value;
             // data.date = new Date().toLocaleString();
-            msgData.msg = JSON.stringify({sender : getId('mid').value, msg : msg.value, date : new Date().toLocaleString()});
+            msgData.msg = JSON.stringify({sender : sender, msg : msg.value, date : new Date().toLocaleString()});
             msgData.targets = targetSetting();
             const temp = JSON.stringify(msgData);
             console.log(temp)

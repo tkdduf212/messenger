@@ -1,4 +1,4 @@
-package com.noint.messenger.entity;
+package com.noint.messenger.dto;
 
 import lombok.Data;
 

@@ -2,7 +2,7 @@ package com.noint.messenger.service;
 
 import com.google.gson.Gson;
 import com.noint.messenger.config.SpringContext;
-import com.noint.messenger.entity.Message;
+import com.noint.messenger.dto.Message;
 import com.noint.messenger.mq.Rabbit;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;

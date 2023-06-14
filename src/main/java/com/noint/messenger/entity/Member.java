@@ -3,7 +3,7 @@ package com.noint.messenger.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "member")
+@Entity(name = "member_tb")
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
