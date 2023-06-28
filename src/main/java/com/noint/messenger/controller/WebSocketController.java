@@ -18,7 +18,8 @@ public class WebSocketController {
 
     @GetMapping("/{seq}")
     public ModelAndView chatMain(ModelAndView modelAndView, @PathVariable Long seq){
-        modelAndView.addObject("data", dataService.getData(seq));
+        dataService.getData(seq);
+//        modelAndView.addObject("data", dataService.getData(seq));
         modelAndView.setViewName("chat/chatting");
         return modelAndView;
     }

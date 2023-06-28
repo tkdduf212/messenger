@@ -7,6 +7,7 @@ import com.noint.messenger.entity.UserRoom;
 import com.noint.messenger.repository.MemberRepository;
 import com.noint.messenger.repository.RoomRepository;
 import com.noint.messenger.repository.UserRoomRepository;
+import com.noint.messenger.repository.WebSocketChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +22,10 @@ public class WebSocketDataService {
     private final MemberRepository memberRepository;
     private final RoomRepository roomRepository;
     private final UserRoomRepository userRoomRepository;
+    private final WebSocketChatRepository webSocketChatRepository;
 
-    public Member getData(Long seq) {
-        Member member = memberRepository.findById(seq).get();
-        List<UserRoom> userRoomList = userRoomRepository.findByUserSeqAndDelDateIsNull(member.getSeq());
-        Map<Long, List<UserRoom>> groupByRoomSeq = userRoomList.stream().collect(Collectors.groupingBy(UserRoom::getRoomSeq));
-        List<Room> roomInfoList = roomRepository.findAllBySeqIn(new ArrayList<>(groupByRoomSeq.keySet()));
-        List<RoomListDTO.RoomListInfo> dataList = new ArrayList<>();
-//        for (Room info : roomInfoList) {
-//            RoomListDTO.RoomListInfo room = new RoomListDTO.RoomListInfo();
-//            room.setRoomId(info.getRoomId());
-//            room.setRoomSeq(info.getSeq());
-//            room.setRoomMemberInfoList();
-//        }
-        RoomListDTO.RoomListInfo roomData = new RoomListDTO.RoomListInfo();
-        return member;
+    public List<RoomListDTO.ParticipatingRoomInfo> getData(Long seq) {
+        List<RoomListDTO.ParticipatingRoomInfo> roomListInfos = webSocketChatRepository.roomListInfo(seq);
+        return roomListInfos;
     }
 }
